@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  launcher-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devsecret
+      POSTGRES_DB: launcher
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+volumes:
+  db_data:
