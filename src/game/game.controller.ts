@@ -11,7 +11,6 @@ export class GameController {
   constructor(private readonly games: GameService) {}
 
   @Post('license')
-  @UseGuards(JwtAuthGuard)
   @Roles('User', 'Admin', 'Dev')
   async fetchLicense(
     @Body() dto: GetLicenseDto,

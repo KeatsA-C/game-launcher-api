@@ -6,17 +6,17 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserModule } from '../user/user.module';
 import { JwtStrategy } from './jwt.strategy';
+import { TokenBlocklistService } from './token-blocklist.service';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
     UserModule,
     PassportModule,
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '15m' },
-    }),
+    JwtModule.register({ secret: jwtConstants.secret }),
   ],
-  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, TokenBlocklistService],
+  exports: [TokenBlocklistService],
 })
 export class AuthModule {}
