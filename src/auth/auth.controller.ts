@@ -18,11 +18,15 @@ export class AuthController {
   }
 
   @Post('logout')
-  @HttpCode(204)
+  @HttpCode(200)
   async logout(@Req() req: any) {
     const { jti, exp } = req.user ?? {};
     if (!jti || !exp) return; // idempotent no-op
     const now = Math.floor(Date.now() / 1000);
     await this.blocklist.block(jti, Math.max(exp - now, 0));
+
+    return {
+      message: 'Logged out',
+    };
   }
 }
