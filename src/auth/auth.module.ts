@@ -14,6 +14,7 @@ import { RedisModule } from 'src/redis/redis.module';
     UserModule,
     PassportModule,
     JwtModule.register({ secret: jwtConstants.secret }),
+    RedisModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, TokenBlocklistService],

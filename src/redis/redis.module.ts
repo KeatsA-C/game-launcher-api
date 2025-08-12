@@ -1,15 +1,11 @@
 // src/redis/redis.module.ts
 import { Module } from '@nestjs/common';
-import Redis from 'ioredis';
+import { ConfigModule } from '@nestjs/config';
+import { redisProvider, REDIS } from './redis.provider';
 
 @Module({
-  providers: [
-    {
-      provide: 'REDIS',
-      useFactory: () =>
-        new Redis(process.env.REDIS_URL ?? 'redis://127.0.0.1:6379'),
-    },
-  ],
-  exports: ['REDIS'],
+  imports: [ConfigModule.forRoot({ isGlobal: true })],
+  providers: [redisProvider],
+  exports: [REDIS],
 })
 export class RedisModule {}

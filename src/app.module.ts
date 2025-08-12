@@ -16,6 +16,7 @@ import { RedisModule } from './redis/redis.module';
     UserModule,
     AuthModule,
     GameModule,
+    RedisModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

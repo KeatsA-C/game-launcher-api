@@ -1,0 +1,18 @@
+# docker-compose.redis.yml
+version: '3.8'
+services:
+  redis:
+    image: redis:7.2
+    command: ['redis-server', '--appendonly', 'no']
+    ports: ['6379:6379']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      timeout: 1s
+      retries: 30
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports: ['8081:8081']
+    depends_on: [redis]
