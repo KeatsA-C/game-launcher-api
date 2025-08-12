@@ -8,6 +8,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { RedisModule } from './redis/redis.module';
+import { LauncherService } from './launcher/launcher.service';
+import { LauncherModule } from './launcher/launcher.module';
 
 @Module({
   imports: [
@@ -17,10 +19,12 @@ import { RedisModule } from './redis/redis.module';
     AuthModule,
     GameModule,
     RedisModule,
+    LauncherModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    LauncherService,
   ],
 })
 export class AppModule {}
