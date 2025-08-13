@@ -2,11 +2,10 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from '../redis/redis.module';
-
 import { LauncherController } from './launcher.controller';
 import { LauncherService } from './launcher.service';
 import { LauncherTokenIssuerService } from './launcher-token-issuer.service';
-
+import { LauncherWsModule } from './ws/launcher.ws.module';
 @Module({
   imports: [
     RedisModule,
@@ -17,6 +16,7 @@ import { LauncherTokenIssuerService } from './launcher-token-issuer.service';
         audience: process.env.JWT_AUDIENCE,
       },
     }),
+    LauncherWsModule,
   ],
   controllers: [LauncherController],
   providers: [LauncherService, LauncherTokenIssuerService], // <- concrete class provided here

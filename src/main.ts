@@ -1,5 +1,7 @@
+// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { WsAdapter } from '@nestjs/platform-ws';
 
 function parseOrigins(csv?: string): (string | RegExp)[] | boolean {
   if (!csv) return false; // no CORS in local-only tooling
@@ -11,17 +13,20 @@ function parseOrigins(csv?: string): (string | RegExp)[] | boolean {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
+  // Enable native 'ws' for @WebSocketGateway()
+  app.useWebSocketAdapter(new WsAdapter(app));
+  app.useLogger(['error', 'warn', 'log', 'debug']); // enable 'log'
   const origins = parseOrigins(process.env.CORS_ORIGINS);
   app.enableCors({
     origin: origins, // exact allowlist
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Authorization', 'Content-Type'],
-    exposedHeaders: [], // add if you need to read custom response headers
-    credentials: false, // you’re using Bearer tokens, keep this false
-    maxAge: 600, // cache preflight for 10 minutes
-    optionsSuccessStatus: 204, // explicit 204 for some clients
+    exposedHeaders: [],
+    credentials: false, // Bearer tokens, keep false
+    maxAge: 600,
+    optionsSuccessStatus: 204,
   });
 
   await app.listen(process.env.PORT ?? 3000);

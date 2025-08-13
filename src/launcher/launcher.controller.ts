@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Ip,
+  Logger,
   Post,
   Req,
   UnauthorizedException,
@@ -18,6 +19,8 @@ import { LauncherTokenIssuerService } from './launcher-token-issuer.service';
 import { LauncherRunDto } from './dto/run.dto';
 import { LauncherAuthDto } from './dto/auth.dto';
 import { Public } from 'src/auth/public.decorator';
+import { PendingCredsStore } from './ws/pending-creds.store';
+import { createHash } from 'crypto';
 
 type ReqUser = {
   sub?: string;
@@ -33,6 +36,7 @@ export class LauncherController {
   constructor(
     private readonly launcher: LauncherService,
     private readonly issuer: LauncherTokenIssuerService,
+    private readonly pendingCreds: PendingCredsStore,
   ) {}
 
   @UseGuards(AuthGuard('jwt'))
@@ -49,36 +53,42 @@ export class LauncherController {
         ? [u.role]
         : [];
 
-    const { code, launchUri, expiresIn } =
-      await this.launcher.createOneTimeCode({
-        userId,
-        roleSnapshot, // snapshot roles from the web user
-        ip,
-        userAgent: req.headers['user-agent'],
-      });
+    const { code, launchUri } = await this.launcher.createOneTimeCode({
+      userId,
+      roleSnapshot, // snapshot roles from the web user
+      ip,
+      userAgent: req.headers['user-agent'],
+    });
 
-    return { code, launchUri, expiresIn };
+    return { code, launchUri };
   }
 
   @Public()
   @Post('auth')
   @HttpCode(HttpStatus.OK)
   async auth(@Body() body: LauncherAuthDto) {
+    if (!body?.code || typeof body.code !== 'string' || body.code.length < 8) {
+      return { error: 'invalid_or_expired_code', message: 'Invalid code.' };
+    }
     const rec = await this.launcher.consume(body.code);
-    if (!rec) {
+    if (!rec)
       return {
         error: 'invalid_or_expired_code',
         message: 'The launch code is invalid or has expired.',
       };
-    }
 
     const tokens = await this.issuer.issueForDevice({
       userId: rec.userId,
-      roles: rec.roleSnapshot, // this is what ensures the bearer’s role matches the initiator
+      roles: rec.roleSnapshot ?? [],
       scope: ['launcher'],
     });
-
-    // Minimal payload: only the bearer (access token)
+    const fp = createHash('sha256').update(body.code).digest('hex').slice(0, 8);
+    Logger.log(
+      `Issued WS cred fp=${fp} ttl=60s for user=${rec.userId}`,
+      'LauncherController',
+    );
+    this.pendingCreds.issue(body.code, rec.userId, 60);
+    console.log(body.code);
     return { accessToken: tokens.accessToken };
   }
 }

@@ -8,7 +8,6 @@ import { UserModule } from '../user/user.module';
 import { JwtStrategy } from './jwt.strategy';
 import { TokenBlocklistService } from './token-blocklist.service';
 import { RedisModule } from 'src/redis/redis.module';
-import { AUTH_SERVICE } from './auth.tokens';
 
 @Module({
   imports: [
@@ -18,12 +17,7 @@ import { AUTH_SERVICE } from './auth.tokens';
     RedisModule,
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    { provide: AUTH_SERVICE, useExisting: AuthService },
-    JwtStrategy,
-    TokenBlocklistService,
-  ],
-  exports: [TokenBlocklistService, AUTH_SERVICE],
+  providers: [AuthService, JwtStrategy, TokenBlocklistService],
+  exports: [TokenBlocklistService],
 })
 export class AuthModule {}
