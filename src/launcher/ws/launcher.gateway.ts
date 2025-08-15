@@ -189,7 +189,7 @@ export class LauncherGateway
     this.safeSend(socket, hello);
   }
 
-  handleDisconnect(_socket: WebSocket) {
+  handleDisconnect() {
     // no-op
   }
 
