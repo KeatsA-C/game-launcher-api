@@ -1,10 +1,9 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req } from '@nestjs/common';
 
 import { Roles } from '../auth/roles.decorator';
 import { GameService } from './game.service';
 import { GetLicenseDto } from './dto/get-license.dto';
 import { Request } from 'express';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('game')
 export class GameController {
