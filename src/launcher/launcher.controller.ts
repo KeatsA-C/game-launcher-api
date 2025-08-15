@@ -87,7 +87,7 @@ export class LauncherController {
       'LauncherController',
     );
     this.pendingCreds.issue(body.code, rec.userId, 60);
-    console.log(body.code);
+
     return { accessToken: tokens.accessToken };
   }
 }
