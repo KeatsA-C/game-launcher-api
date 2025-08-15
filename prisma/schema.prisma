@@ -16,8 +16,9 @@ model User {
 }
 
 model Game {
-  id       String   @id @default(uuid())
-  name     String
-  license  String
+  id      String  @id @default(uuid())
+  name    String  @unique
+  license String
 }
+
 

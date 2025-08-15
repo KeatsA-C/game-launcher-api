@@ -1,3 +1,4 @@
+// src/launcher/ws/launcher.ws.module.ts
 import { Module } from '@nestjs/common';
 import { LauncherGateway } from './launcher.gateway';
 import { LauncherSessions } from './launcher.sessions';

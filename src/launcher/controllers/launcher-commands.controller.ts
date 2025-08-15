@@ -5,18 +5,17 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { LauncherGateway } from '../ws/launcher.gateway';
 import { ConnectionAliases } from '../ws/connection-aliases';
 import { PushCommandDto } from '../dto/push-command.dto';
+import { Roles } from 'src/auth/roles.decorator';
 
-// Replace with your real guard
-class JwtAuthGuard {
-  canActivate() {
-    return true;
-  }
-}
+type ReqUser = { sub?: string; userId?: string; id?: string };
 
 @Controller('launcher')
 export class LauncherCommandsController {
@@ -25,29 +24,29 @@ export class LauncherCommandsController {
     private readonly aliases: ConnectionAliases,
   ) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('commands')
-  @UseGuards(JwtAuthGuard)
+  @Roles('Admin', 'Dev')
   @HttpCode(HttpStatus.ACCEPTED)
-  push(@Body() body: PushCommandDto) {
-    const { userId, instanceId, deviceId, code, type, payload } = body;
+  async push(@Req() req: any, @Body() body: PushCommandDto) {
+    const u: ReqUser = req.user ?? {};
+    const userId = u.sub ?? u.userId ?? u.id;
+    if (!userId) throw new UnauthorizedException('JWT missing user id');
 
-    if (instanceId) {
-      return this.gateway.sendCommandToInstance(
-        userId,
-        instanceId,
-        type,
-        payload,
-      );
+    const wsSessionId = this.aliases.resolve(userId, body.code);
+    if (!wsSessionId) {
+      return {
+        delivered: [],
+        commandId: null,
+        error: 'no_live_session_for_code',
+      };
     }
-    if (deviceId) {
-      return this.gateway.sendCommandToDevice(userId, deviceId, type, payload);
-    }
-    if (code) {
-      const wsSessionId = this.aliases.resolve(userId, code);
-      if (!wsSessionId) return { delivered: [], commandId: null };
-      return this.gateway.sendCommandToSession(wsSessionId, type, payload);
-    }
-    // default: broadcast to all instances for the user
-    return this.gateway.sendCommandToUser(userId, type, payload);
+
+    const res = this.gateway.sendCommandToSession(
+      wsSessionId,
+      body.type,
+      body.payload,
+    );
+    return res; // { delivered: [wsSessionId], commandId: '<uuid>' }
   }
 }

@@ -5,7 +5,9 @@ import { RedisModule } from '../redis/redis.module';
 import { LauncherController } from './launcher.controller';
 import { LauncherService } from './launcher.service';
 import { LauncherTokenIssuerService } from './launcher-token-issuer.service';
+import { LauncherCommandsController } from './controllers/launcher-commands.controller';
 import { LauncherWsModule } from './ws/launcher.ws.module';
+
 @Module({
   imports: [
     RedisModule,
@@ -18,7 +20,7 @@ import { LauncherWsModule } from './ws/launcher.ws.module';
     }),
     LauncherWsModule,
   ],
-  controllers: [LauncherController],
+  controllers: [LauncherController, LauncherCommandsController],
   providers: [LauncherService, LauncherTokenIssuerService], // <- concrete class provided here
   exports: [], // nothing needed outside
 })

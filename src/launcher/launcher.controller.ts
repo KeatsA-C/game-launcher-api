@@ -16,7 +16,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { LauncherService } from './launcher.service';
 import { LauncherTokenIssuerService } from './launcher-token-issuer.service';
 
-import { LauncherRunDto } from './dto/run.dto';
 import { LauncherAuthDto } from './dto/auth.dto';
 import { Public } from 'src/auth/public.decorator';
 import { PendingCredsStore } from './ws/pending-creds.store';
@@ -42,7 +41,7 @@ export class LauncherController {
   @UseGuards(AuthGuard('jwt'))
   @Post('run')
   @HttpCode(HttpStatus.OK)
-  async run(@Req() req: any, @Body() _body: LauncherRunDto, @Ip() ip: string) {
+  async run(@Req() req: any, @Ip() ip: string) {
     const u: ReqUser = req.user ?? {};
     const userId = u.sub ?? u.userId ?? u.id;
     if (!userId) throw new UnauthorizedException('JWT missing user id');
