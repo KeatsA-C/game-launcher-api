@@ -13,7 +13,10 @@ import { LauncherModule } from './launcher/launcher.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
+    }),
     PrismaModule,
     UserModule,
     AuthModule,
