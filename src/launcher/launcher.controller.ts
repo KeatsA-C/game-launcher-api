@@ -17,9 +17,10 @@ import { LauncherService } from './launcher.service';
 import { LauncherTokenIssuerService } from './launcher-token-issuer.service';
 
 import { LauncherAuthDto } from './dto/auth.dto';
-import { Public } from 'src/auth/public.decorator';
+
 import { PendingCredsStore } from './ws/pending-creds.store';
 import { createHash } from 'crypto';
+import { Public } from '../auth/public.decorator';
 
 type ReqUser = {
   sub?: string;

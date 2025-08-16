@@ -13,7 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { LauncherGateway } from '../ws/launcher.gateway';
 import { ConnectionAliases } from '../ws/connection-aliases';
 import { PushCommandDto } from '../dto/push-command.dto';
-import { Roles } from 'src/auth/roles.decorator';
+import { Roles } from '../../auth/roles.decorator';
 
 type ReqUser = { sub?: string; userId?: string; id?: string };
 

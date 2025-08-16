@@ -7,7 +7,7 @@ import { AuthController } from './auth.controller';
 import { UserModule } from '../user/user.module';
 import { JwtStrategy } from './jwt.strategy';
 import { TokenBlocklistService } from './token-blocklist.service';
-import { RedisModule } from 'src/redis/redis.module';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   imports: [
