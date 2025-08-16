@@ -20,7 +20,8 @@ async function bootstrap() {
   app.useLogger(['error', 'warn', 'log', 'debug']); // enable 'log'
   const origins = parseOrigins(process.env.CORS_ORIGINS);
   app.enableCors({
-    origin: origins, // exact allowlist
+    //origin: origins, // exact allowlist
+    origin: '*', // exact allowlist
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Authorization', 'Content-Type'],
     exposedHeaders: [],
