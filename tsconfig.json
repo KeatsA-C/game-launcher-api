@@ -1,21 +1,20 @@
+// tsconfig.json
 {
   "compilerOptions": {
+    "incremental": false,
+    "rootDir": "./src",
+    "outDir": "./dist",
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES2022",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "sourceMap": true,
-    "removeComments": true,
-    "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "incremental": true,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
-  }
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test"]
 }

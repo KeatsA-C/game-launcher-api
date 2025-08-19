@@ -20,8 +20,8 @@ async function bootstrap() {
   app.useLogger(['error', 'warn', 'log', 'debug']); // enable 'log'
   const origins = parseOrigins(process.env.CORS_ORIGINS);
   app.enableCors({
-    //origin: origins, // exact allowlist
-    origin: '*', // exact allowlist
+    origin: origins, // exact allowlist
+    //origin: '*', // exact allowlist
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Authorization', 'Content-Type'],
     exposedHeaders: [],
@@ -30,13 +30,14 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
-  //await app.listen(process.env.PORT ?? 3000); //local
-  const port = Number(process.env.PORT) || 3000;
-  await app.listen(port, '0.0.0.0');
+  await app.listen(process.env.PORT ?? 3000); //local
+  // const port = Number(process.env.PORT) || 3000;
+  // await app.listen(port, '0.0.0.0');
 }
-bootstrap().catch((e) => {
-  // Avoid leaking secrets; print message + stack only.
-  console.error('[FATAL]', e?.message);
-  console.error(e?.stack);
-  process.exit(1);
-});
+bootstrap();
+// bootstrap().catch((e) => {
+//   // Avoid leaking secrets; print message + stack only.
+//   console.error('[FATAL]', e?.message);
+//   console.error(e?.stack);
+//   process.exit(1);
+// });

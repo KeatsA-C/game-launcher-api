@@ -5,50 +5,42 @@ import * as bcrypt from 'bcrypt';
 const db = new PrismaClient();
 const ROUNDS = 12;
 
-function makeLicense(): string {
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  const pick = (n: number) =>
-    Array.from(
-      { length: n },
-      () => alphabet[Math.floor(Math.random() * alphabet.length)],
-    ).join('');
-  return `${pick(5)}-${pick(5)}-${pick(5)}-${pick(5)}`;
+async function ensureGame(name: string, license: string) {
+  const existing = await db.game.findUnique({ where: { name } });
+  if (existing) return { created: false };
+  await db.game.create({ data: { name, license } });
+  return { created: true };
+}
+
+async function ensureUser(username: string, role: string, password: string) {
+  const existing = await db.user.findUnique({ where: { username } });
+  if (existing) return { created: false };
+  const passwordHash = await bcrypt.hash(password, ROUNDS);
+  await db.user.create({ data: { username, role, passwordHash } });
+  return { created: true };
 }
 
 async function main() {
-  // Games: total desired = 5; "PluginEnvironment" already exists, so we seed 4 more
-  const games = [
-    { name: 'AssetHub', license: makeLicense() },
-    { name: 'PhotonRunner', license: makeLicense() },
-    { name: 'MapForge', license: makeLicense() },
-    { name: 'NetArena', license: makeLicense() },
-  ];
+  // Game: only PluginEnvironment
+  const lic = process.env.PLUGINENV_LICENSE ?? 'PE-LIC-0001-DEFAULT';
+  const g = await ensureGame('PluginEnvironment', lic);
 
-  // Users: one each role; "admin" already exists
-  const users = [
-    {
-      username: 'user',
-      role: 'User',
-      passwordHash: await bcrypt.hash('user12345', ROUNDS),
-    },
-    {
-      username: 'dev',
-      role: 'Dev',
-      passwordHash: await bcrypt.hash('dev12345', ROUNDS),
-    },
-  ];
+  // Users: Admin, Dev, User
+  const a = await ensureUser('admin', 'Admin', 'Admin123!');
+  const d = await ensureUser('dev', 'Dev', 'dev12345');
+  const u = await ensureUser('user', 'User', 'user12345');
 
-  // Insert without pre-checks; skipDuplicates avoids unique-violation throws
-  const g = await db.game.createMany({ data: games, skipDuplicates: true });
-  const u = await db.user.createMany({ data: users, skipDuplicates: true });
-
-  console.log(`Seeded games inserted: ${g.count}, users inserted: ${u.count}`);
+  console.log(
+    `Seed: game created=${g.created}, users created: ` +
+      `admin=${a.created}, dev=${d.created}, user=${u.created}`,
+  );
 }
 
 main()
-  .then(() => db.$disconnect())
   .catch(async (e) => {
     console.error('[seed] failed:', e);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
     await db.$disconnect();
-    process.exit(1);
   });
